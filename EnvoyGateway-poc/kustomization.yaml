@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # - app.yaml
+  - gateway.yaml
+  - ns.yaml
+  - clusterissuer.yaml
+  # - connectionlimit.yaml
+  - redis.yaml
+  - backend-traffic.yaml
+  - https://github.com/envoyproxy/gateway/releases/download/latest/install.yaml
+
+helmCharts:
+- name: cert-manager
+  repo: https://charts.jetstack.io
+  version: v1.18.2
+  releaseName: cert-manager
+  namespace: cert-manager
+  valuesInline:
+    crds:
+      enabled: true
+    config:
+      apiVersion: controller.config.cert-manager.io/v1alpha1
+      kind: ControllerConfiguration
+      enableGatewayAPI: true
+patches:
+  - path: ratelimitpatch.yaml
